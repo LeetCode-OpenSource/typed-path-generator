@@ -16,6 +16,10 @@ const PACKAGE = require('../../package.json')
  *   - validate routes
  *   - add credit to output files
  *   - log each steps
+ *   - support more path-to-regexp's syntax
+ *   - export params type
+ *   - warning when occur unsupported path-to-regexp syntax
+ *   - warning when yaml file has invalid variable, eg: `routers:` is invalid
  * */
 
 program
