@@ -1,4 +1,24 @@
+import { merge } from 'lodash'
+import { safeLoad } from 'js-yaml'
 import * as pathToRegexp from 'path-to-regexp'
+
+import { Options, YAML } from './types'
+
+const getDefaultOptions = (): Options => ({
+  variableName: {
+    staticRoute: 'staticRoute',
+    routeFactory: 'routeFactory',
+  },
+})
+
+export function loadYAML(yaml: string): YAML {
+  const { routes = {}, options = {} } = safeLoad(yaml)
+
+  return {
+    routes,
+    options: merge(getDefaultOptions(), options),
+  }
+}
 
 export function recursiveForEach<Output>(
   obj: any,

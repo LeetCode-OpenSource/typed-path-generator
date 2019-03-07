@@ -1,36 +1,34 @@
-import { safeLoad } from 'js-yaml'
 import { set } from 'lodash'
 
+import { Routes, VariableName } from './types'
 import { recursiveForEach, convert, stringify } from './utils'
 
 interface ParseResult {
-  path: { [key: string]: object | string }
-  to: { [key: string]: object | string }
+  staticRoute: { [key: string]: object | string }
+  routeFactory: { [key: string]: object | string }
 }
 
-export function parse(yamlString: string): ParseResult {
-  const yamlObject = safeLoad(yamlString)
-  const result: ParseResult = {
-    path: {},
-    to: {},
-  }
+function parse(routes: Routes, { staticRoute }: VariableName): ParseResult {
+  const result: ParseResult = { staticRoute: {}, routeFactory: {} }
 
-  recursiveForEach(yamlObject, (pathString, currentRefPath) => {
+  recursiveForEach(routes, (pathString, currentRefPath) => {
     const { path, paramsType } = convert(pathString)
-    const pathRef = `path.${currentRefPath.join('.')}`
+    const pathRef = [staticRoute, ...currentRefPath].join('.')
 
-    set(result.path, currentRefPath, `'${path}'`)
-    set(result.to, currentRefPath, `makePathsFrom<${paramsType}>(${pathRef})`)
+    set(result.staticRoute, currentRefPath, `'${path}'`)
+    set(result.routeFactory, currentRefPath, `makePathsFrom<${paramsType}>(${pathRef})`)
   })
 
   return result
 }
 
-export function generateCode({ path, to }: ParseResult): string {
+export function generateCode(routes: Routes, variableName: VariableName): string {
+  const { staticRoute, routeFactory } = parse(routes, variableName)
+
   return `
 import { makePathsFrom, Params } from "typed-route-generator"
 
-export const path = ${stringify(path)};
+export const ${variableName.staticRoute} = ${stringify(staticRoute)};
 
-export const to = ${stringify(to)};`
+export const ${variableName.routeFactory} = ${stringify(routeFactory)};`
 }

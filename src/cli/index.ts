@@ -3,7 +3,8 @@ import * as path from 'path'
 import * as program from 'commander'
 import { format } from 'prettier'
 
-import { generateCode, parse } from './generate'
+import { generateCode } from './generate'
+import { loadYAML } from './utils'
 
 const PACKAGE = require('../../package.json')
 
@@ -11,7 +12,6 @@ const PACKAGE = require('../../package.json')
  * TODO
  *   - support custom file name
  *   - support custom output dir
- *   - support custom export variable name, eg: rename `export path = ...` to `export PATH = ...`
  *   - support recursive file path syntax to generate multiple files
  *   - validate routes
  *   - add credit to output files
@@ -28,7 +28,8 @@ program
 
 program.command('*').action((routerPath) => {
   const yamlString = fs.readFileSync(path.resolve(routerPath), { encoding: 'utf-8' })
-  const codeString = generateCode(parse(yamlString))
+  const { routes, options } = loadYAML(yamlString)
+  const codeString = generateCode(routes, options.variableName)
 
   const outputDir = path.dirname(routerPath)
   const outputName = `${path.basename(routerPath, path.extname(routerPath))}.ts`
