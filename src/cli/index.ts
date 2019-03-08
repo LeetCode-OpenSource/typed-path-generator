@@ -12,7 +12,6 @@ const PACKAGE = require('../../package.json')
  * TODO
  *   - support custom file name
  *   - support custom output dir
- *   - support recursive file path syntax to generate multiple files
  *   - validate routes
  *   - add credit to output files
  *   - log each steps
@@ -24,33 +23,43 @@ const PACKAGE = require('../../package.json')
 
 program
   .version(PACKAGE.version)
+  .usage('<file...> [options]')
   .option('-P, --prettier [path]', 'specify the config path of Prettier')
 
-program.command('*').action((routerPath) => {
-  const yamlString = fs.readFileSync(path.resolve(routerPath), { encoding: 'utf-8' })
-  const { routes, options } = loadYAML(yamlString)
-  const codeString = generateCode(routes, options.variableName)
+program.action((...args) => {
+  args.forEach((arg) => {
+    const isRoutePath = typeof arg === 'string'
 
-  const outputDir = path.dirname(routerPath)
-  const outputName = `${path.basename(routerPath, path.extname(routerPath))}.ts`
-
-  fs.writeFileSync(path.join(outputDir, outputName), prettifyCode(codeString))
+    if (isRoutePath) {
+      generateFile(arg)
+    }
+  })
 })
 
 program.parse(process.argv)
 
-function prettifyCode(codeString: string): string {
-  if (program.prettier) {
-    try {
-      const prettierOptions =
-        typeof program.prettier === 'string'
-          ? JSON.parse(fs.readFileSync(path.resolve(program.prettier), { encoding: 'utf-8' }))
-          : {}
+function generateFile(routePath: string) {
+  const yamlString = fs.readFileSync(path.resolve(routePath), { encoding: 'utf-8' })
+  const { routes, options } = loadYAML(yamlString)
+  const codeString = generateCode(routes, options.variableName)
 
-      return format(codeString, { ...prettierOptions, parser: 'typescript' })
-    } catch (e) {
-      console.error(e)
-    }
+  const outputDir = path.dirname(routePath)
+  const outputName = `${path.basename(routePath, path.extname(routePath))}.ts`
+  const outputPath = path.join(outputDir, outputName)
+
+  fs.writeFileSync(outputPath, prettifyCode(codeString))
+}
+
+function prettifyCode(codeString: string): string {
+  try {
+    const prettierOptions =
+      typeof program.prettier === 'string'
+        ? JSON.parse(fs.readFileSync(path.resolve(program.prettier), { encoding: 'utf-8' }))
+        : {}
+
+    return format(codeString, { ...prettierOptions, parser: 'typescript' })
+  } catch (e) {
+    console.error(e)
   }
 
   return codeString
