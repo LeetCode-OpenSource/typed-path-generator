@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as program from 'commander'
-import { format } from 'prettier'
+import { format, resolveConfig } from 'prettier'
 
 import { generateCode } from './generate'
 import { loadYAML } from './utils'
@@ -26,19 +26,23 @@ program
   .usage('<file...> [options]')
   .option('-P, --prettier [path]', 'specify the config path of Prettier')
 
-program.action((...args) => {
-  args.forEach((arg) => {
-    const isRoutePath = typeof arg === 'string'
-
-    if (isRoutePath) {
-      generateFile(arg)
-    }
-  })
-})
-
 program.parse(process.argv)
 
-function generateFile(routePath: string) {
+main()
+
+async function main() {
+  await Promise.all(
+    program.args.map(async (arg) => {
+      const isRoutePath = typeof arg === 'string'
+
+      if (isRoutePath) {
+        await generateFile(arg)
+      }
+    }),
+  )
+}
+
+async function generateFile(routePath: string) {
   const yamlString = fs.readFileSync(path.resolve(routePath), { encoding: 'utf-8' })
   const { routes, options } = loadYAML(yamlString)
   const codeString = generateCode(routes, options.variableName)
@@ -47,20 +51,18 @@ function generateFile(routePath: string) {
   const outputName = `${path.basename(routePath, path.extname(routePath))}.ts`
   const outputPath = path.join(outputDir, outputName)
 
-  fs.writeFileSync(outputPath, prettifyCode(codeString))
+  fs.writeFileSync(outputPath, await prettifyCode(codeString))
 }
 
-function prettifyCode(codeString: string): string {
-  try {
-    const prettierOptions =
-      typeof program.prettier === 'string'
-        ? JSON.parse(fs.readFileSync(path.resolve(program.prettier), { encoding: 'utf-8' }))
-        : {}
-
-    return format(codeString, { ...prettierOptions, parser: 'typescript' })
-  } catch (e) {
-    console.error(e)
+async function prettifyCode(codeString: string): Promise<string> {
+  if (typeof program.prettier === 'string') {
+    try {
+      const config = await resolveConfig(program.prettier)
+      return format(codeString, { ...config, parser: 'typescript' })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
-  return codeString
+  return format(codeString, { parser: 'typescript' })
 }
