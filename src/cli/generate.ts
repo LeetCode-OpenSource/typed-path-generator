@@ -8,6 +8,17 @@ interface ParseResult {
   routeFactory: { [key: string]: object | string }
 }
 
+export function generateCode(routes: Routes, variableName: VariableName): string {
+  const { staticRoute, routeFactory } = parse(routes, variableName)
+
+  return `
+import { makePathsFrom, Params, RepeatParams } from "typed-route-generator"
+
+export const ${variableName.staticRoute} = ${codeStringify(staticRoute)};
+
+export const ${variableName.routeFactory} = ${codeStringify(routeFactory)};`
+}
+
 function parse(routes: Routes, { staticRoute }: VariableName): ParseResult {
   const result: ParseResult = { staticRoute: {}, routeFactory: {} }
 
@@ -20,15 +31,4 @@ function parse(routes: Routes, { staticRoute }: VariableName): ParseResult {
   })
 
   return result
-}
-
-export function generateCode(routes: Routes, variableName: VariableName): string {
-  const { staticRoute, routeFactory } = parse(routes, variableName)
-
-  return `
-import { makePathsFrom, Params, RepeatParams } from "typed-route-generator"
-
-export const ${variableName.staticRoute} = ${codeStringify(staticRoute)};
-
-export const ${variableName.routeFactory} = ${codeStringify(routeFactory)};`
 }
