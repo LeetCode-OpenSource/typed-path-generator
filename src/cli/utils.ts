@@ -9,6 +9,7 @@ const getDefaultOptions = (): Options => ({
   variableName: {
     staticRoute: 'staticRoute',
     routeFactory: 'routeFactory',
+    ParamsInterface: 'ParamsInterface',
   },
 })
 

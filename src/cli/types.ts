@@ -14,4 +14,5 @@ export interface Options {
 export interface VariableName {
   staticRoute: string
   routeFactory: string
+  ParamsInterface: string
 }

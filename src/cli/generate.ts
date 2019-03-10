@@ -6,28 +6,35 @@ import { recursiveForEach, convert, codeStringify } from './utils'
 interface ParseResult {
   staticRoute: { [key: string]: object | string }
   routeFactory: { [key: string]: object | string }
+  ParamsInterface: { [key: string]: object | string }
 }
 
 export function generateCode(routes: Routes, variableName: VariableName): string {
-  const { staticRoute, routeFactory } = parse(routes, variableName)
+  const { staticRoute, routeFactory, ParamsInterface } = parse(routes, variableName)
 
   return `
 import { makePathsFrom, Params, RepeatParams } from "typed-route-generator"
+
+export interface ${variableName.ParamsInterface} ${codeStringify(ParamsInterface)}
 
 export const ${variableName.staticRoute} = ${codeStringify(staticRoute)};
 
 export const ${variableName.routeFactory} = ${codeStringify(routeFactory)};`
 }
 
-function parse(routes: Routes, { staticRoute }: VariableName): ParseResult {
-  const result: ParseResult = { staticRoute: {}, routeFactory: {} }
+function parse(routes: Routes, variableName: VariableName): ParseResult {
+  const result: ParseResult = { ParamsInterface: {}, staticRoute: {}, routeFactory: {} }
 
   recursiveForEach(routes, (pathString, currentRefPath) => {
     const { path, paramsType } = convert(pathString)
-    const pathRef = [staticRoute, ...currentRefPath].join('.')
+    const pathRef = [variableName.staticRoute, ...currentRefPath].join('.')
+    const paramsRef = [variableName.ParamsInterface, ...currentRefPath].reduce(
+      (ref, nextPath) => `${ref}['${nextPath}']`,
+    )
 
+    set(result.ParamsInterface, currentRefPath, paramsType || 'void')
     set(result.staticRoute, currentRefPath, `'${path}'`)
-    set(result.routeFactory, currentRefPath, `makePathsFrom<${paramsType}>(${pathRef})`)
+    set(result.routeFactory, currentRefPath, `makePathsFrom<${paramsRef}>(${pathRef})`)
   })
 
   return result
