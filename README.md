@@ -1,5 +1,5 @@
-<h1 align="center">🏇🏼typed-path-generator</h1>
-<h4 align="center">Convert <a href="https://github.com/pillarjs/path-to-regexp" target="_blank">path</a> <code>/user/:userID</code> to <code>({ userID: string | number }) => string</code></h4>
+<h1 align="center">🏇 typed-path-generator</h1>
+<p align="center">Convert path <code>/user/:userID</code> to <code>(params: { userID: string | number }) => string</code></p>
 <p align="center">
   <a href="https://github.com/LeetCode-OpenSource/typed-path-generator/blob/master/LICENSE">
     <img alt="GitHub license" src="https://img.shields.io/badge/license-MIT-blue.svg">
@@ -35,7 +35,7 @@ npm install typed-path-generator
 
 ### Config paths
 
-typed-path-generator using [YAML](https://yaml.org) as configuration file. Here's an example:
+`typed-path-generator` using [YAML](https://yaml.org) as configuration file. Here's an example:
 
 ```yaml
 options:
