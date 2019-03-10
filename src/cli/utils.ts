@@ -5,7 +5,7 @@ import * as pathToRegexp from 'path-to-regexp'
 import { ParamsType } from '../router-utils'
 import { Options, YAML } from './types'
 
-const getDefaultOptions = (): Options => ({
+export const getDefaultOptions = (): Options => ({
   variableName: {
     staticRoute: 'staticRoute',
     routeFactory: 'routeFactory',

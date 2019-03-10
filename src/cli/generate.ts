@@ -1,7 +1,7 @@
 import { set } from 'lodash'
 
 import { Routes, VariableName } from './types'
-import { recursiveForEach, convert, codeStringify } from './utils'
+import { recursiveForEach, convert, codeStringify, getDefaultOptions } from './utils'
 
 interface ParseResult {
   staticRoute: { [key: string]: object | string }
@@ -9,26 +9,37 @@ interface ParseResult {
   ParamsInterface: { [key: string]: object | string }
 }
 
+// using default variable name to avoid conflict with custom variable name,
+// and the custom one is only used for export
+const VARIABLE_NAME = getDefaultOptions().variableName
+
 export function generateCode(routes: Routes, variableName: VariableName): string {
-  const { staticRoute, routeFactory, ParamsInterface } = parse(routes, variableName)
+  const { staticRoute, routeFactory, ParamsInterface } = parse(routes)
 
   return `
 import { makePathsFrom, Params, RepeatParams } from "typed-route-generator"
 
-export interface ${variableName.ParamsInterface} ${codeStringify(ParamsInterface)}
+interface ${VARIABLE_NAME.ParamsInterface} ${codeStringify(ParamsInterface)}
 
-export const ${variableName.staticRoute} = ${codeStringify(staticRoute)};
+const ${VARIABLE_NAME.staticRoute} = ${codeStringify(staticRoute)};
 
-export const ${variableName.routeFactory} = ${codeStringify(routeFactory)};`
+const ${VARIABLE_NAME.routeFactory} = ${codeStringify(routeFactory)};
+
+export {
+  ${VARIABLE_NAME.ParamsInterface} as ${variableName.ParamsInterface},
+  ${VARIABLE_NAME.staticRoute} as ${variableName.staticRoute},
+  ${VARIABLE_NAME.routeFactory} as ${variableName.routeFactory},
+}
+`
 }
 
-function parse(routes: Routes, variableName: VariableName): ParseResult {
+function parse(routes: Routes): ParseResult {
   const result: ParseResult = { ParamsInterface: {}, staticRoute: {}, routeFactory: {} }
 
   recursiveForEach(routes, (pathString, currentRefPath) => {
     const { path, paramsType } = convert(pathString)
-    const pathRef = [variableName.staticRoute, ...currentRefPath].join('.')
-    const paramsRef = [variableName.ParamsInterface, ...currentRefPath].reduce(
+    const pathRef = [VARIABLE_NAME.staticRoute, ...currentRefPath].join('.')
+    const paramsRef = [VARIABLE_NAME.ParamsInterface, ...currentRefPath].reduce(
       (ref, nextPath) => `${ref}['${nextPath}']`,
     )
 
