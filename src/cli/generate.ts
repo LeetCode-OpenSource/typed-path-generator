@@ -26,7 +26,7 @@ export function generateCode(routes: Routes, variableName: VariableName): string
   const { staticRoute, routeFactory } = parse(routes, variableName)
 
   return `
-import { makePathsFrom, Params } from "typed-route-generator"
+import { makePathsFrom, Params, RepeatParams } from "typed-route-generator"
 
 export const ${variableName.staticRoute} = ${stringify(staticRoute)};
 

@@ -2,6 +2,7 @@ import { merge } from 'lodash'
 import { safeLoad } from 'js-yaml'
 import * as pathToRegexp from 'path-to-regexp'
 
+import { ParamsType } from '../router-utils'
 import { Options, YAML } from './types'
 
 const getDefaultOptions = (): Options => ({
@@ -10,6 +11,10 @@ const getDefaultOptions = (): Options => ({
     routeFactory: 'routeFactory',
   },
 })
+
+const makeParamsTypeString = makeTypeString(ParamsType.Params)
+
+const makeRepeatParamsTypeString = makeTypeString(ParamsType.RepeatParams)
 
 export function loadYAML(yaml: string): YAML {
   const { routes = {}, options = {} } = safeLoad(yaml)
@@ -48,33 +53,63 @@ export function convert(pathString: string) {
 }
 
 function getParamsTypeString(keys: pathToRegexp.Key[]) {
-  const [requiredKey, optionalKey] = keys.reduce<[pathToRegexp.Key[], pathToRegexp.Key[]]>(
-    ([required, optional], key) => {
+  const { requiredKeys, requiredRepeatKeys, optionalKeys, optionalRepeatKeys } = keys.reduce<{
+    requiredKeys: pathToRegexp.Key[]
+    requiredRepeatKeys: pathToRegexp.Key[]
+    optionalKeys: pathToRegexp.Key[]
+    optionalRepeatKeys: pathToRegexp.Key[]
+  }>(
+    ({ requiredKeys, requiredRepeatKeys, optionalKeys, optionalRepeatKeys }, key) => {
       if (key.optional) {
-        optional.push(key)
+        if (key.repeat) {
+          optionalRepeatKeys.push(key)
+        } else {
+          optionalKeys.push(key)
+        }
       } else {
-        required.push(key)
+        if (key.repeat) {
+          requiredRepeatKeys.push(key)
+        } else {
+          requiredKeys.push(key)
+        }
       }
 
-      return [required, optional]
+      return { requiredKeys, requiredRepeatKeys, optionalKeys, optionalRepeatKeys }
     },
-    [[], []],
+    {
+      requiredKeys: [],
+      requiredRepeatKeys: [],
+      optionalKeys: [],
+      optionalRepeatKeys: [],
+    },
   )
 
-  const required = makeParamsTypeString(requiredKey)
-  const optional = makeParamsTypeString(optionalKey)
+  const required = makeParamsTypeString(requiredKeys)
+  const requiredRepeat = makeRepeatParamsTypeString(requiredRepeatKeys)
 
-  return mergeTypeString(required, optional && `Partial<${optional}>`)
+  const optional = partialTypeString(makeParamsTypeString(optionalKeys))
+  const optionalRepeat = partialTypeString(makeRepeatParamsTypeString(optionalRepeatKeys))
+
+  return mergeTypeString(required, requiredRepeat, optional, optionalRepeat)
 }
 
-function makeParamsTypeString(keys: pathToRegexp.Key[]) {
-  if (keys.length < 1) {
-    return ''
+function partialTypeString(type: string) {
+  if (type) {
+    return `Partial<${type}>`
+  } else {
+    return type
   }
+}
 
-  const withSingleQuote = (key: pathToRegexp.Key) => `'${key.name}'`
-
-  return `Params<${keys.map(withSingleQuote).join(' | ')}>`
+function makeTypeString(Type: ParamsType) {
+  return (keys: pathToRegexp.Key[]) => {
+    if (keys.length < 1) {
+      return ''
+    } else {
+      const withSingleQuote = (key: pathToRegexp.Key) => `'${key.name}'`
+      return `${Type}<${keys.map(withSingleQuote).join(' | ')}>`
+    }
+  }
 }
 
 function mergeTypeString(...types: string[]) {
