@@ -16,7 +16,6 @@ const PACKAGE = require('../../package.json')
  *   - add credit to output files
  *   - log each steps
  *   - export params type
- *   - warning when occur unsupported path-to-regexp syntax
  *   - warning when yaml file has invalid variable, eg: `routers:` is invalid
  *   - better type checking for custom Matching Parameters, eg:
  *      - /:foo(\\d+) could be Params<foo, number>
