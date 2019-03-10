@@ -16,6 +16,28 @@ const makeParamsTypeString = makeTypeString(ParamsType.Params)
 
 const makeRepeatParamsTypeString = makeTypeString(ParamsType.RepeatParams)
 
+export function codeStringify(code: object): string {
+  const replaceInfo: { origin: string; stringified: string }[] = []
+  const stringifiedCode = JSON.stringify(code, collectReplaceInfo)
+
+  return replaceInfo.reduce(
+    // '{ "key": "value" }' => '{ "key": value }'
+    (result, { origin, stringified }) => result.replace(stringified, origin),
+    stringifiedCode,
+  )
+
+  function collectReplaceInfo(_key: string, value: string | object) {
+    if (typeof value === 'string') {
+      replaceInfo.push({
+        origin: value,
+        stringified: JSON.stringify(value),
+      })
+    }
+
+    return value
+  }
+}
+
 export function loadYAML(yaml: string): YAML {
   const { routes = {}, options = {} } = safeLoad(yaml)
 
@@ -114,8 +136,4 @@ function makeTypeString(Type: ParamsType) {
 
 function mergeTypeString(...types: string[]) {
   return types.filter(Boolean).join(' & ')
-}
-
-export function stringify(code: object): string {
-  return JSON.stringify(code).replace(/":"([^"]+)"/g, '":$1')
 }
