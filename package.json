@@ -1,6 +1,6 @@
 {
   "name": "typed-path-generator",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Convert path `/user/:userID` to `({ userID: string | number }) => string`",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,7 +19,13 @@
     "test": "jest",
     "build": "rm -rf ./dist && tsc -p ./tsconfig.json"
   },
-  "keywords": [],
+  "keywords": [
+    "route",
+    "routing",
+    "path-to-regexp",
+    "typescript",
+    "typed-path"
+  ],
   "author": "LeetCode front-end team",
   "license": "MIT",
   "husky": {
