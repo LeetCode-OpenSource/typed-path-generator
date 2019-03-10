@@ -55,6 +55,7 @@
     "commander": "^2.19.0",
     "js-yaml": "^3.12.2",
     "lodash": "^4.17.11",
+    "outdent": "^0.7.0",
     "path-to-regexp": "^3.0.0",
     "qs": "^6.6.0",
     "tslib": "^1.9.3"

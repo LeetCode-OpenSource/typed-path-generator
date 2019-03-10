@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as program from 'commander'
+import outdent from 'outdent'
 import { format, resolveConfig } from 'prettier'
 
 import { generateCode } from './generate'
@@ -13,7 +14,6 @@ const PACKAGE = require('../../package.json')
  *   - support custom file name
  *   - support custom output dir
  *   - validate routes
- *   - add credit to output files
  *   - log each steps
  *   - warning when yaml file has invalid variable, eg: `routers:` is invalid
  *   - better type checking for custom Matching Parameters, eg:
@@ -45,13 +45,24 @@ async function main() {
 async function generateFile(routePath: string) {
   const yamlString = fs.readFileSync(path.resolve(routePath), { encoding: 'utf-8' })
   const { routes, options } = loadYAML(yamlString)
-  const codeString = generateCode(routes, options.variableName)
 
   const outputDir = path.dirname(routePath)
   const outputName = `${path.basename(routePath, path.extname(routePath))}.ts`
   const outputPath = path.join(outputDir, outputName)
 
-  fs.writeFileSync(outputPath, await prettifyCode(codeString))
+  const codeString = await prettifyCode(outdent`
+    /*
+     * Please do not modify this file, because it was generated from file ${path.relative(
+       outputDir,
+       routePath,
+     )}.
+     * Check https://github.com/LeetCode-OpenSource/typed-route-generator for more details.
+     * */
+
+    ${generateCode(routes, options.variableName)}
+  `)
+
+  fs.writeFileSync(outputPath, codeString)
 }
 
 async function prettifyCode(codeString: string): Promise<string> {

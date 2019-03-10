@@ -1,4 +1,5 @@
 import { set } from 'lodash'
+import outdent from 'outdent'
 
 import { Routes, VariableName } from './types'
 import { recursiveForEach, convert, codeStringify, getDefaultOptions } from './utils'
@@ -16,21 +17,21 @@ const VARIABLE_NAME = getDefaultOptions().variableName
 export function generateCode(routes: Routes, variableName: VariableName): string {
   const { staticRoute, routeFactory, ParamsInterface } = parse(routes)
 
-  return `
-import { makePathsFrom, Params, RepeatParams } from "typed-route-generator"
+  return outdent`
+    import { makePathsFrom, Params, RepeatParams } from "typed-route-generator"
 
-interface ${VARIABLE_NAME.ParamsInterface} ${codeStringify(ParamsInterface)}
+    interface ${VARIABLE_NAME.ParamsInterface} ${codeStringify(ParamsInterface)}
 
-const ${VARIABLE_NAME.staticRoute} = ${codeStringify(staticRoute)};
+    const ${VARIABLE_NAME.staticRoute} = ${codeStringify(staticRoute)};
 
-const ${VARIABLE_NAME.routeFactory} = ${codeStringify(routeFactory)};
+    const ${VARIABLE_NAME.routeFactory} = ${codeStringify(routeFactory)};
 
-export {
-  ${VARIABLE_NAME.ParamsInterface} as ${variableName.ParamsInterface},
-  ${VARIABLE_NAME.staticRoute} as ${variableName.staticRoute},
-  ${VARIABLE_NAME.routeFactory} as ${variableName.routeFactory},
-}
-`
+    export {
+      ${VARIABLE_NAME.ParamsInterface} as ${variableName.ParamsInterface},
+      ${VARIABLE_NAME.staticRoute} as ${variableName.staticRoute},
+      ${VARIABLE_NAME.routeFactory} as ${variableName.routeFactory},
+    }
+  `
 }
 
 function parse(routes: Routes): ParseResult {
