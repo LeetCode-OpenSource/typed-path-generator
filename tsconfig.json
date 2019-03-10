@@ -13,7 +13,11 @@
     "noImplicitReturns": true,
     "moduleResolution": "node",
     "lib": ["dom", "es2015"],
-    "target": "es5"
+    "target": "es5",
+    "baseUrl": ".",
+    "paths": {
+      "typed-route-generator": ["./src"]
+    }
   },
   "include": ["src"]
 }
