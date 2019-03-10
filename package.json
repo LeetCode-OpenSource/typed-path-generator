@@ -1,20 +1,20 @@
 {
-  "name": "typed-route-generator",
+  "name": "typed-path-generator",
   "version": "0.0.1",
-  "description": "A more effective way to organize route, which works perfectly with Typescript",
+  "description": "Convert path `/user/:userID` to `({ userID: string | number }) => string`",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "typed-route-generator": "./bin/typed-route-generator.js"
+    "typed-path-generator": "./bin/typed-path-generator.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LeetCode-OpenSource/typed-route-generator.git"
+    "url": "git+https://github.com/LeetCode-OpenSource/typed-path-generator.git"
   },
   "bugs": {
-    "url": "https://github.com/LeetCode-OpenSource/typed-route-generator/issues"
+    "url": "https://github.com/LeetCode-OpenSource/typed-path-generator/issues"
   },
-  "homepage": "https://github.com/LeetCode-OpenSource/typed-route-generator#readme",
+  "homepage": "https://github.com/LeetCode-OpenSource/typed-path-generator#readme",
   "scripts": {
     "test": "jest",
     "build": "rm -rf ./dist && tsc -p ./tsconfig.json"

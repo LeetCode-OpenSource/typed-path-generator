@@ -1,10 +1,10 @@
 export interface YAML {
-  routes: Routes
+  paths: Paths
   options: Options
 }
 
-export interface Routes {
-  [key: string]: string | Routes
+export interface Paths {
+  [key: string]: string | Paths
 }
 
 export interface Options {
@@ -12,7 +12,7 @@ export interface Options {
 }
 
 export interface VariableName {
-  staticRoute: string
-  routeFactory: string
+  staticPath: string
+  pathFactory: string
   ParamsInterface: string
 }

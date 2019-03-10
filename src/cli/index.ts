@@ -13,7 +13,7 @@ const PACKAGE = require('../../package.json')
  * TODO
  *   - support custom file name
  *   - support custom output dir
- *   - validate routes
+ *   - validate paths
  *   - log each steps
  *   - warning when yaml file has invalid variable, eg: `routers:` is invalid
  *   - better type checking for custom Matching Parameters, eg:
@@ -33,33 +33,33 @@ main()
 async function main() {
   await Promise.all(
     program.args.map(async (arg) => {
-      const isRoutePath = typeof arg === 'string'
+      const isFilePath = typeof arg === 'string'
 
-      if (isRoutePath) {
+      if (isFilePath) {
         await generateFile(arg)
       }
     }),
   )
 }
 
-async function generateFile(routePath: string) {
-  const yamlString = fs.readFileSync(path.resolve(routePath), { encoding: 'utf-8' })
-  const { routes, options } = loadYAML(yamlString)
+async function generateFile(filePath: string) {
+  const yamlString = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' })
+  const { paths, options } = loadYAML(yamlString)
 
-  const outputDir = path.dirname(routePath)
-  const outputName = `${path.basename(routePath, path.extname(routePath))}.ts`
+  const outputDir = path.dirname(filePath)
+  const outputName = `${path.basename(filePath, path.extname(filePath))}.ts`
   const outputPath = path.join(outputDir, outputName)
 
   const codeString = await prettifyCode(outdent`
     /*
      * Please do not modify this file, because it was generated from file ${path.relative(
        outputDir,
-       routePath,
+       filePath,
      )}.
-     * Check https://github.com/LeetCode-OpenSource/typed-route-generator for more details.
+     * Check https://github.com/LeetCode-OpenSource/typed-path-generator for more details.
      * */
 
-    ${generateCode(routes, options.variableName)}
+    ${generateCode(paths, options.variableName)}
   `)
 
   fs.writeFileSync(outputPath, codeString)

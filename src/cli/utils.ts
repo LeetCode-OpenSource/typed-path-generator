@@ -2,13 +2,13 @@ import { merge } from 'lodash'
 import { safeLoad } from 'js-yaml'
 import * as pathToRegexp from 'path-to-regexp'
 
-import { ParamsType } from '../router-utils'
+import { ParamsType } from '../path-utils'
 import { Options, YAML } from './types'
 
 export const getDefaultOptions = (): Options => ({
   variableName: {
-    staticRoute: 'staticRoute',
-    routeFactory: 'routeFactory',
+    staticPath: 'staticPath',
+    pathFactory: 'pathFactory',
     ParamsInterface: 'ParamsInterface',
   },
 })
@@ -40,10 +40,10 @@ export function codeStringify(code: object): string {
 }
 
 export function loadYAML(yaml: string): YAML {
-  const { routes = {}, options = {} } = safeLoad(yaml)
+  const { paths = {}, options = {} } = safeLoad(yaml)
 
   return {
-    routes,
+    paths,
     options: merge(getDefaultOptions(), options),
   }
 }

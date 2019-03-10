@@ -16,7 +16,7 @@
     "target": "es5",
     "baseUrl": ".",
     "paths": {
-      "typed-route-generator": ["./src"]
+      "typed-path-generator": ["./src"]
     }
   },
   "include": ["src"]
