@@ -1,6 +1,6 @@
 {
   "name": "typed-path-generator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Convert path `/user/:userID` to `({ userID: string | number }) => string`",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
