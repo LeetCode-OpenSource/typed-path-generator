@@ -2,8 +2,11 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as program from 'commander'
 import outdent from 'outdent'
+import chalk from 'chalk'
 import { format, resolveConfig } from 'prettier'
 
+import { YAML } from './types'
+import { Logger, LoggerStatus } from './logger'
 import { generateCode } from './generate'
 import { loadYAML } from './utils'
 
@@ -14,7 +17,6 @@ const PACKAGE = require('../../package.json')
  *   - support custom file name
  *   - support custom output dir
  *   - validate paths
- *   - log each steps
  *   - warning when yaml file has invalid variable, eg: `routers:` is invalid
  *   - better type checking for custom Matching Parameters, eg:
  *      - /:foo(\\d+) could be Params<foo, number>
@@ -31,6 +33,8 @@ program.parse(process.argv)
 main()
 
 async function main() {
+  const startTime = Date.now()
+
   await Promise.all(
     program.args.map(async (arg) => {
       const isFilePath = typeof arg === 'string'
@@ -40,15 +44,36 @@ async function main() {
       }
     }),
   )
+
+  // tslint:disable-next-line:no-console
+  console.log(`Done in ${((Date.now() - startTime) / 1000).toFixed(2)}s`)
 }
 
 async function generateFile(filePath: string) {
+  await generateTypeScriptFile(filePath, parseYAML(filePath))
+}
+
+function parseYAML(filePath: string): YAML {
+  const logger = new Logger(filePath)
+
+  logger.log(`Parse ${chalk.underline(filePath)}`, LoggerStatus.Started)
+
   const yamlString = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' })
-  const { paths, options } = loadYAML(yamlString)
+  const result = loadYAML(yamlString)
+
+  logger.log(`Parse ${chalk.underline(filePath)}`, LoggerStatus.Completed)
+
+  return result
+}
+
+async function generateTypeScriptFile(filePath: string, { paths, options }: YAML) {
+  const logger = new Logger(filePath)
 
   const outputDir = path.dirname(filePath)
   const outputName = `${path.basename(filePath, path.extname(filePath))}.ts`
   const outputPath = path.join(outputDir, outputName)
+
+  logger.log(`Generate ${chalk.underline(outputPath)}`, LoggerStatus.Started)
 
   const codeString = await prettifyCode(outdent`
     /*
@@ -61,8 +86,9 @@ async function generateFile(filePath: string) {
 
     ${generateCode(paths, options.variableName)}
   `)
-
   fs.writeFileSync(outputPath, codeString)
+
+  logger.log(`Generate ${chalk.underline(outputPath)}`, LoggerStatus.Completed)
 }
 
 async function prettifyCode(codeString: string): Promise<string> {
