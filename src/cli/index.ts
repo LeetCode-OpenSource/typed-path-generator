@@ -34,13 +34,8 @@ program.parse(process.argv)
 main()
 
 async function main() {
-  const startTime = Date.now()
   const filePaths = await getFilePaths()
-
   await Promise.all(filePaths.map((filePath) => generateFile(filePath)))
-
-  // tslint:disable-next-line:no-console
-  console.log(`Done in ${((Date.now() - startTime) / 1000).toFixed(2)}s`)
 }
 
 async function getFilePaths(): Promise<string[]> {
