@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as program from 'commander'
+import * as glob from 'glob'
 import outdent from 'outdent'
 import chalk from 'chalk'
 import { format, resolveConfig } from 'prettier'
@@ -34,19 +35,38 @@ main()
 
 async function main() {
   const startTime = Date.now()
+  const filePaths = await getFilePaths()
 
-  await Promise.all(
-    program.args.map(async (arg) => {
-      const isFilePath = typeof arg === 'string'
-
-      if (isFilePath) {
-        await generateFile(arg)
-      }
-    }),
-  )
+  await Promise.all(filePaths.map((filePath) => generateFile(filePath)))
 
   // tslint:disable-next-line:no-console
   console.log(`Done in ${((Date.now() - startTime) / 1000).toFixed(2)}s`)
+}
+
+async function getFilePaths(): Promise<string[]> {
+  const globProcess: (string[])[] = await Promise.all(
+    program.args.map(
+      (arg) =>
+        new Promise<string[]>((resolve) => {
+          const isFilePath = typeof arg === 'string'
+
+          if (isFilePath) {
+            glob(arg, (error, fileNames) => {
+              if (error) {
+                console.warn(error)
+                resolve([])
+              } else {
+                resolve(fileNames)
+              }
+            })
+          } else {
+            resolve([])
+          }
+        }),
+    ),
+  )
+
+  return globProcess.reduce((result, fileNames) => [...result, ...fileNames])
 }
 
 async function generateFile(filePath: string) {
