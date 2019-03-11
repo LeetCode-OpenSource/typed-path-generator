@@ -5,6 +5,13 @@ import * as pathToRegexp from 'path-to-regexp'
 import { ParamsType } from '../path-utils'
 import { Options, YAML } from './types'
 
+export interface ParamsTypeString {
+  required: string
+  requiredRepeat: string
+  optional: string
+  optionalRepeat: string
+}
+
 export const getDefaultOptions = (): Options => ({
   variableName: {
     staticPath: 'staticPath',
@@ -12,10 +19,6 @@ export const getDefaultOptions = (): Options => ({
     ParamsInterface: 'ParamsInterface',
   },
 })
-
-const makeParamsTypeString = makeTypeString(ParamsType.Params)
-
-const makeRepeatParamsTypeString = makeTypeString(ParamsType.RepeatParams)
 
 export function codeStringify(code: object): string {
   const replaceInfo: { origin: string; stringified: string }[] = []
@@ -71,11 +74,14 @@ export function convert(pathString: string) {
 
   return {
     path: pathString,
-    paramsType: getParamsTypeString(keys),
+    paramsTypeString: getParamsTypeString(keys),
   }
 }
 
-function getParamsTypeString(keys: pathToRegexp.Key[]) {
+function getParamsTypeString(keys: pathToRegexp.Key[]): ParamsTypeString {
+  const makeParamsTypeString = makeTypeString(ParamsType.Params)
+  const makeRepeatParamsTypeString = makeTypeString(ParamsType.RepeatParams)
+
   const { requiredKeys, requiredRepeatKeys, optionalKeys, optionalRepeatKeys } = keys.reduce<{
     requiredKeys: pathToRegexp.Key[]
     requiredRepeatKeys: pathToRegexp.Key[]
@@ -113,7 +119,12 @@ function getParamsTypeString(keys: pathToRegexp.Key[]) {
   const optional = partialTypeString(makeParamsTypeString(optionalKeys))
   const optionalRepeat = partialTypeString(makeRepeatParamsTypeString(optionalRepeatKeys))
 
-  return mergeTypeString(required, requiredRepeat, optional, optionalRepeat)
+  return {
+    required,
+    requiredRepeat,
+    optional,
+    optionalRepeat,
+  }
 }
 
 function partialTypeString(type: string) {
@@ -135,6 +146,6 @@ function makeTypeString(Type: ParamsType) {
   }
 }
 
-function mergeTypeString(...types: string[]) {
+export function mergeTypeString(...types: string[]) {
   return types.filter(Boolean).join(' & ')
 }
