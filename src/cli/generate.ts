@@ -68,10 +68,8 @@ function parse(paths: Paths): ParseResult {
     const { path, paramsTypeString } = convert(pathString)
 
     const mergedParamsType = mergeTypeString(...Object.values(paramsTypeString))
-    const pathRef = [VARIABLE_NAME.staticPath, ...currentRefPath].join('.')
-    const paramsRef = [VARIABLE_NAME.ParamsInterface, ...currentRefPath].reduce(
-      (ref, nextPath) => `${ref}['${nextPath}']`,
-    )
+    const pathRef = getPathRef([VARIABLE_NAME.staticPath, ...currentRefPath])
+    const paramsRef = getParamsRef([VARIABLE_NAME.ParamsInterface, ...currentRefPath])
 
     updateImportInfo(paramsTypeString)
     set(result.ParamsInterface, currentRefPath, mergedParamsType || 'void')
@@ -80,6 +78,27 @@ function parse(paths: Paths): ParseResult {
   })
 
   return result
+
+  function getPathRef(refPaths: string[]): string {
+    return refPaths.reduce((ref, nextPath) => {
+      /*
+       *  See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Property_Accessors#Dot_notation
+       *  a sequence of alphanumerical characters, also including the underscore ("_") and dollar sign ("$"),
+       *  that cannot start with a number
+       * */
+      const isValidToUseDotNotation = /^[a-zA-Z_$]/.test(nextPath)
+
+      if (isValidToUseDotNotation) {
+        return `${ref}.${nextPath}`
+      } else {
+        return `${ref}['${nextPath}']`
+      }
+    })
+  }
+
+  function getParamsRef(refPaths: string[]) {
+    return refPaths.reduce((ref, nextPath) => `${ref}['${nextPath}']`)
+  }
 
   function updateImportInfo({
     required,
