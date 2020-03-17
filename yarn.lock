@@ -3035,9 +3035,9 @@ optionator@^0.8.1:
     word-wrap "~1.2.3"
 
 outdent@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/outdent/-/outdent-0.7.0.tgz#cfd1f1956305141e0cf3e898ada6547373c1997a"
-  integrity sha512-Ue462G+UIFoyQmOzapGIKWS3d/9NHeD/018WGEDZIhN2/VaQpVXbofMcZX0socv1fw4/tmEn7Vd3McOdPZfKzQ==
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/outdent/-/outdent-0.7.1.tgz#e9b400443622a97760b0bc74fa3223252ccd02a2"
+  integrity sha512-VjIzdUHunL74DdhcwMDt5FhNDQ8NYmTkuW0B+usIV2afS9aWT/1c9z1TsnFW349TP3nxmYeUl7Z++XpJRByvgg==
 
 p-each-series@^2.1.0:
   version "2.1.0"
