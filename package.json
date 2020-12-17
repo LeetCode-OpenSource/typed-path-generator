@@ -64,7 +64,7 @@
     "js-yaml": "^3.12.2",
     "lodash": "^4.17.11",
     "log-update": "^4.0.0",
-    "outdent": "^0.7.0",
+    "outdent": "^0.8.0",
     "path-to-regexp": "^6.1.0",
     "prettier": "^2.0.1",
     "qs": "^6.6.0",
