@@ -1,6 +1,6 @@
 import { merge } from 'lodash'
-import { safeLoad } from 'js-yaml'
-import * as pathToRegexp from 'path-to-regexp'
+import { load } from 'js-yaml'
+import pathToRegexp from 'path-to-regexp'
 
 import { ParamsType } from '../path-utils'
 import { Options, YAML } from './types'
@@ -43,7 +43,7 @@ export function codeStringify(code: Record<string, unknown>): string {
 }
 
 export function loadYAML(yaml: string): YAML {
-  const { paths = {}, options = {} } = safeLoad(yaml)
+  const { paths = {}, options = {} } = load(yaml) as any
 
   return {
     paths,
