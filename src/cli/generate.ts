@@ -48,8 +48,9 @@ export function generateCode(paths: Paths, variableName: VariableName): string {
 
     const ${VARIABLE_NAME.pathFactory} = ${codeStringify(pathFactory)};
 
+    export type { ${VARIABLE_NAME.ParamsInterface} as ${variableName.ParamsInterface} };
+
     export {
-      ${VARIABLE_NAME.ParamsInterface} as ${variableName.ParamsInterface},
       ${VARIABLE_NAME.staticPath} as ${variableName.staticPath},
       ${VARIABLE_NAME.pathFactory} as ${variableName.pathFactory},
     }
