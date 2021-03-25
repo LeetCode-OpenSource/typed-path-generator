@@ -20,7 +20,7 @@ export const getDefaultOptions = (): Options => ({
   },
 })
 
-export function codeStringify(code: object): string {
+export function codeStringify(code: Record<string, unknown>): string {
   const replaceInfo: { origin: string; stringified: string }[] = []
   const stringifiedCode = JSON.stringify(code, collectReplaceInfo)
 
@@ -30,7 +30,7 @@ export function codeStringify(code: object): string {
     stringifiedCode,
   )
 
-  function collectReplaceInfo(_key: string, value: string | object) {
+  function collectReplaceInfo(_key: string, value: string | Record<string, unknown>) {
     if (typeof value === 'string') {
       replaceInfo.push({
         origin: value,
@@ -52,10 +52,10 @@ export function loadYAML(yaml: string): YAML {
 }
 
 export function recursiveForEach<Output>(
-  obj: any,
+  obj: Record<string, any>,
   translate: (value: any, path: string[]) => Output,
   parentPath: string[] = [],
-) {
+): void {
   Object.keys(obj).forEach((key) => {
     const currentPath = [...parentPath, key]
     const value = obj[key]
@@ -146,6 +146,6 @@ function makeTypeString(Type: ParamsType) {
   }
 }
 
-export function mergeTypeString(...types: string[]) {
+export function mergeTypeString(...types: string[]): string {
   return types.filter(Boolean).join(' & ')
 }
