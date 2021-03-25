@@ -19,9 +19,9 @@ interface ImportInfo {
 }
 
 interface ParseResult {
-  staticPath: { [key: string]: object | string }
-  pathFactory: { [key: string]: object | string }
-  ParamsInterface: { [key: string]: object | string }
+  staticPath: { [key: string]: Record<string, unknown> | string }
+  pathFactory: { [key: string]: Record<string, unknown> | string }
+  ParamsInterface: { [key: string]: Record<string, unknown> | string }
   importInfo: ImportInfo
 }
 

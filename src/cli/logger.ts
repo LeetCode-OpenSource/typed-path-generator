@@ -45,7 +45,7 @@ export class Logger extends BasicLogger {
     super()
   }
 
-  log(message: string, status: LoggerStatus) {
+  log(message: string, status: LoggerStatus): void {
     Logger.updateInfos({ key: this.key, message, status })
   }
 }
