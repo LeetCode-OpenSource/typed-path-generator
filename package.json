@@ -65,7 +65,7 @@
     "lodash": "^4.17.11",
     "log-update": "^4.0.0",
     "outdent": "^0.8.0",
-    "path-to-regexp": "^3.0.0",
+    "path-to-regexp": "^6.2.0",
     "prettier": "^2.0.1",
     "qs": "^6.6.0",
     "tslib": "^2.1.0"
